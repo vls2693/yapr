@@ -15,6 +15,8 @@ public class CreditCalculator {
     private boolean creditRatingChecker;
     private boolean creditBurden;
     private double baseRate;
+    private int maxAllowedCreditBody;
+    private double yearPayment;
 
     public CreditCalculator(int age, String gender, String incomeSource, int lastYearIncome, int creditRating,
                             double requestedAmount, int paymentPeriod, String purpose) {
@@ -68,6 +70,10 @@ public class CreditCalculator {
         return purpose;
     }
 
+    public int getMaxAllowedCreditBody() {
+        return maxAllowedCreditBody;
+    }
+
     public boolean isAgeChecker() {
         return ageChecker;
     }
@@ -90,6 +96,10 @@ public class CreditCalculator {
 
     public void setCreditBurden(boolean creditBurden) {
         this.creditBurden = creditBurden;
+    }
+
+    public void setMaxAllowedCreditBody(int maxAllowedCreditBody) {
+        this.maxAllowedCreditBody = maxAllowedCreditBody;
     }
 
     public String inputValidation() {
@@ -170,10 +180,74 @@ public class CreditCalculator {
     }
 
     public String creditBurdenCheck() {
-        if (getRequestedAmount() / getPaymentPeriod() > getLastYearIncome() / 3) {
+        if (getRequestedAmount() / getPaymentPeriod() > getLastYearIncome() / 3.0) {
             setCreditBurden(false);
             return "Отказ: слишком высокая кредитная нагрузка";
         }
-        return "Первая проверка на кредитную нагрузку пройдены";
+        return "Первая проверка на кредитную нагрузку пройдена";
+    }
+
+    public void creditBodyCalculating() {
+        if (getIncomeSource().equals("пассивный доход") || getCreditRating() == -1) {
+            setMaxAllowedCreditBody(1);
+            return;
+        }
+        if (getIncomeSource().equals("наёмный работник") || getIncomeSource().equals("наемный работник")
+                || getCreditRating() == 0) {
+            setMaxAllowedCreditBody(5);
+            return;
+        }
+        if (getIncomeSource().equals("собственный бизнес") || getCreditRating() == 1 || getCreditRating() == 2) {
+            setMaxAllowedCreditBody(10);
+        }
+    }
+
+    public String limitCalculation() {
+        if (getRequestedAmount() > getMaxAllowedCreditBody()) {
+            setCreditBurden(false);
+            return "Отказ: слишком высокая кредитная нагрузка";
+        }
+        return "Проверка на лимит пройдена";
+    }
+
+    public void creditRateCalculating() {
+        if(getPurpose().equals("ипотека")) {
+            this.baseRate = this.baseRate - 2;
+        }
+        if(getPurpose().equals("развитие бизнеса")) {
+            this.baseRate = this.baseRate - 0.5;
+        }
+        if(getPurpose().equals("потребительский") || getPurpose().equals("автокредит")) {
+            this.baseRate = this.baseRate + 1.5;
+        }
+        if (getCreditRating() == -1) {
+            this.baseRate = this.baseRate + 1.5;
+        }
+        if (getCreditRating() == 1) {
+            this.baseRate = this.baseRate - 0.25;
+        }
+        if (getCreditRating() == 2) {
+            this.baseRate = this.baseRate - 0.75;
+        }
+        this.baseRate = this.baseRate - Math.log10(getRequestedAmount());
+        if (getIncomeSource().equals("пассивный доход")) {
+            this.baseRate = this.baseRate + 0.5;
+        }
+        if (getIncomeSource().equals("наёмный работник") || getIncomeSource().equals("наемный работник")
+                || getIncomeSource().equals("собственный бизнес")) {
+            this.baseRate = this.baseRate - 0.25;
+        }
+    }
+
+    public void yearPayment() {
+        this.yearPayment = (getRequestedAmount() * (1 + getPaymentPeriod() * (this.baseRate)))/getPaymentPeriod();
+    }
+
+    public String creditBurdenCheckerWithYearPayment() {
+        if (getLastYearIncome() / 2.0 < yearPayment) {
+            setValidationChecker(false);
+            return "Отказ: слишком высокая кредитная нагрузка";
+        }
+        return "Вторая проверка на кредитную нагрузку пройдена";
     }
 }
