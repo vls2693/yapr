@@ -1,3 +1,5 @@
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class CreditCalculator {
@@ -17,6 +19,7 @@ public class CreditCalculator {
     private double baseRate;
     private int maxAllowedCreditBody;
     private double yearPayment;
+    public Map<Integer, String> map;
 
     public CreditCalculator(int age, String gender, String incomeSource, int lastYearIncome, int creditRating,
                             double requestedAmount, int paymentPeriod, String purpose) {
@@ -36,6 +39,17 @@ public class CreditCalculator {
         this.creditRatingChecker = true;
         this.creditBurden = true;
         this.baseRate = 10.0;
+        Map<Integer, String> map = new HashMap<>();
+        map.put(1, "Ошибка: возраст не может быть меньше 0 или больше 100. Введите корректные данные");
+        map.put(2, "Ошибка: пол может быть только M или F. Введите корректные данные");
+        map.put(3, "Ошибка: источник дохода может быть только: пассивный доход, наёмный работник, наемный работник, " +
+                "собственный бизнес, безработный . Введите корректные данные");
+        map.put(4, "Ошибка: доход за последний год не может быть меньше 0 или больше 100. Введите корректные данные");
+        map.put(5, "Ошибка: кредитный рейтинг не может быть меньше -2 или больше 2. Введите корректные данные");
+        map.put(6, "Ошибка: запрошенная сумма не может быть меньше 0.1 или больше 10. Введите корректные данные");
+        map.put(7, "Ошибка: срок погашения не может быть меньше 1 или больше 20. Введите корректные данные");
+
+        this.map = map;
     }
 
     public int getAge() {
@@ -67,6 +81,7 @@ public class CreditCalculator {
     }
 
     public String getPurpose() {
+
         return purpose;
     }
 
