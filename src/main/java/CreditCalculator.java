@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -11,34 +12,24 @@ public class CreditCalculator {
     private double requestedAmount;
     private int paymentPeriod;
     private String purpose;
-    private boolean validationChecker;
-    private boolean ageChecker;
-    private boolean incomeSourceChecker;
-    private boolean creditRatingChecker;
-    private boolean creditBurden;
-    private double baseRate;
-    private int maxAllowedCreditBody;
-    private double yearPayment;
+    private boolean decisionCheckbox;
+    private int message;
     public Map<Integer, String> map;
 
     public CreditCalculator(int age, String gender, String incomeSource, int lastYearIncome, int creditRating,
                             double requestedAmount, int paymentPeriod, String purpose) {
 //        входные параметры
         this.age = age;
-        this.gender = gender;
-        this.incomeSource = incomeSource;
+        this.gender = gender.toLowerCase();
+        this.incomeSource = incomeSource.toLowerCase();
         this.lastYearIncome = lastYearIncome;
         this.creditRating = creditRating;
         this.requestedAmount = requestedAmount;
         this.paymentPeriod = paymentPeriod;
-        this.purpose = purpose;
-//        переменные проверок по отказам, если одна из переменных принимает значение false, возвращаем отказ
-        this.validationChecker = true;
-        this.ageChecker = true;
-        this.incomeSourceChecker = true;
-        this.creditRatingChecker = true;
-        this.creditBurden = true;
-        this.baseRate = 10.0;
+        this.purpose = purpose.toLowerCase();
+//        переменная проверок по ошибкам и отказам, если принимает значение false, возвращаем ошибку или отказ
+        this.decisionCheckbox = true;
+        this.message = 0;
         Map<Integer, String> map = new HashMap<>();
         map.put(1, "Ошибка: возраст не может быть меньше 0 или больше 100. Введите корректные данные");
         map.put(2, "Ошибка: пол может быть только M или F. Введите корректные данные");
@@ -48,7 +39,14 @@ public class CreditCalculator {
         map.put(5, "Ошибка: кредитный рейтинг не может быть меньше -2 или больше 2. Введите корректные данные");
         map.put(6, "Ошибка: запрошенная сумма не может быть меньше 0.1 или больше 10. Введите корректные данные");
         map.put(7, "Ошибка: срок погашения не может быть меньше 1 или больше 20. Введите корректные данные");
-
+        map.put(8, "Ошибка: цель может быть только: ипотека, развитие бизнеса, автокредит, потребительский. " +
+                "Введите корректные данные");
+        map.put(9, "Отказ: возраст выдачи кредита начинается с 14");
+        map.put(10, "Отказ: возраст заёмщика на момент выплаты кредита будет пенсионный");
+        map.put(11, "Отказ: выдача кредита недоступна гражданам пенсионного возраста");
+        map.put(12, "Отказ: выдача кредита недоступна безработным");
+        map.put(13, "Отказ: выдача кредита недоступна c низким кредитным рейтингом");
+        map.put(14, "Отказ: слишком высокая кредитная нагрузка");
         this.map = map;
     }
 
@@ -85,184 +83,188 @@ public class CreditCalculator {
         return purpose;
     }
 
-    public int getMaxAllowedCreditBody() {
-        return maxAllowedCreditBody;
+    public int getMessage() {
+        return message;
     }
 
-    public boolean isAgeChecker() {
-        return ageChecker;
+    public void setMessage(int message) {
+        this.message = message;
     }
 
-    public void setValidationChecker(boolean validationChecker) {
-        this.validationChecker = validationChecker;
+    public boolean isDecisionCheckbox() {
+        return decisionCheckbox;
     }
 
-    public void setAgeChecker(boolean ageChecker) {
-        this.ageChecker = ageChecker;
+    public void setDecisionCheckbox(boolean decisionCheckbox) {
+        this.decisionCheckbox = decisionCheckbox;
     }
 
-    public void setIncomeSourceChecker(boolean incomeSourceChecker) {
-        this.incomeSourceChecker = incomeSourceChecker;
-    }
-
-    public void setCreditRatingChecker(boolean creditRatingChecker) {
-        this.creditRatingChecker = creditRatingChecker;
-    }
-
-    public void setCreditBurden(boolean creditBurden) {
-        this.creditBurden = creditBurden;
-    }
-
-    public void setMaxAllowedCreditBody(int maxAllowedCreditBody) {
-        this.maxAllowedCreditBody = maxAllowedCreditBody;
-    }
-
-    public String inputValidation() {
+    public void inputValidation() {
         if (getAge() < 0 || getAge() > 100) {
-            setValidationChecker(false);
-            return "Ошибка: возраст не может быть меньше 0 или больше 100. Введите корректные данные";
+            setDecisionCheckbox(false);
+            setMessage(1);
+            return;
         }
-        if (!Objects.equals(getGender().toUpperCase(), "M") || !Objects.equals(getGender().toUpperCase(), "F")) {
-            setValidationChecker(false);
-            return "Ошибка: пол может быть только M или F. Введите корректные данные";
+        if (!Objects.equals(getGender(), "m") || !Objects.equals(getGender(), "f")) {
+            setDecisionCheckbox(false);
+            setMessage(2);
+            return;
         }
-        if (!Objects.equals(getIncomeSource().toLowerCase(), "пассивный доход") ||
-                !Objects.equals(getIncomeSource().toLowerCase(), "наёмный работник")
-                || !Objects.equals(getIncomeSource().toLowerCase(), "наемный работник")
-                || !Objects.equals(getIncomeSource().toLowerCase(), "собственный бизнес")
-                || !Objects.equals(getIncomeSource().toLowerCase(), "безработный")) {
-            setValidationChecker(false);
-            return "Ошибка: источник дохода может быть только: пассивный доход, наёмный работник, наемный работник, " +
-                    "собственный бизнес, безработный . Введите корректные данные";
+        if (!Objects.equals(getIncomeSource(), "пассивный доход") ||
+                !Objects.equals(getIncomeSource(), "наёмный работник")
+                || !Objects.equals(getIncomeSource(), "наемный работник")
+                || !Objects.equals(getIncomeSource(), "собственный бизнес")
+                || !Objects.equals(getIncomeSource(), "безработный")) {
+            setDecisionCheckbox(false);
+            setMessage(3);
+            return;
         }
         if (getLastYearIncome() < 0 || getLastYearIncome() > 100) {
-            setValidationChecker(false);
-            return "Ошибка: доход за последний год не может быть меньше 0 или больше 100. Введите корректные данные";
+            setDecisionCheckbox(false);
+            setMessage(4);
+            return;
         }
         if (getCreditRating() < -2 || getCreditRating() > 2) {
-            setValidationChecker(false);
-            return "Ошибка: кредитный рейтинг не может быть меньше -2 или больше 2. Введите корректные данные";
+            setDecisionCheckbox(false);
+            setMessage(5);
+            return;
         }
         if (getRequestedAmount() < 0.1 || getRequestedAmount() > 10) {
-            setValidationChecker(false);
-            return "Ошибка: запрошенная сумма не может быть меньше 0.1 или больше 10. Введите корректные данные";
+            setDecisionCheckbox(false);
+            setMessage(6);
+            return;
         }
         if (getPaymentPeriod() < 1 || getPaymentPeriod() > 20) {
-            setValidationChecker(false);
-            return "Ошибка: срок погашения не может быть меньше 1 или больше 20. Введите корректные данные";
+            setDecisionCheckbox(false);
+            setMessage(7);
+            return;
         }
-        if (!Objects.equals(getPurpose().toLowerCase(), "ипотека") ||
-                !Objects.equals(getIncomeSource().toLowerCase(), "развитие бизнеса")
-                || !Objects.equals(getIncomeSource().toLowerCase(), "автокредит")
-                || !Objects.equals(getIncomeSource().toLowerCase(), "потребительский")) {
-            setValidationChecker(false);
-            return "Ошибка: цель может быть только: ипотека, развитие бизнеса, автокредит, " +
-                    "потребительский . Введите корректные данные";
+        if (!Objects.equals(getPurpose(), "ипотека") ||
+                !Objects.equals(getIncomeSource(), "развитие бизнеса")
+                || !Objects.equals(getIncomeSource(), "автокредит")
+                || !Objects.equals(getIncomeSource(), "потребительский")) {
+            setDecisionCheckbox(false);
+            setMessage(8);
         }
-        return "Валидация пройдена";
     }
 
-    public String ageCheck() {
+//    метод проверки на гарантированные отказы по возрасту, рейтингу, доходу
+    public void rejectCheck() {
         if (getAge() < 14) {
-            setAgeChecker(false);
-            return "Отказ: возраст выдачи кредита начинается с 14";
+            setDecisionCheckbox(false);
+            setMessage(9);
+            return;
         }
         if (getAge() + getPaymentPeriod() > 64) {
-            setAgeChecker(false);
-            return "Отказ: возраст заёмщика на момент выплаты кредита будет пенсионный";
+            setDecisionCheckbox(false);
+            setMessage(10);
+            return;
         }
         if (getAge() > 64) {
-            setAgeChecker(false);
-            return "Отказ: выдача кредита недоступна гражданам пенсионного возраста";
-        }
-        return "Проверки на возраст пройдены";
-    }
-
-    public String incomeSourceCheck() {
-        if (Objects.equals(getIncomeSource(), "безработный")) {
-            setIncomeSourceChecker(false);
-            return "Отказ: выдача кредита недоступна безработным";
-        }
-        return "Проверки на источник дохода пройдены";
-    }
-
-    public String creditRatingCheck() {
-        if (getCreditRating() == -2) {
-            setCreditRatingChecker(false);
-            return "Отказ: выдача кредита недоступна c низким кредитным рейтингом";
-        }
-        return "Проверки на кредитный рейтинг пройдены";
-    }
-
-    public String creditBurdenCheck() {
-        if (getRequestedAmount() / getPaymentPeriod() > getLastYearIncome() / 3.0) {
-            setCreditBurden(false);
-            return "Отказ: слишком высокая кредитная нагрузка";
-        }
-        return "Первая проверка на кредитную нагрузку пройдена";
-    }
-
-    public void creditBodyCalculating() {
-        if (getIncomeSource().equals("пассивный доход") || getCreditRating() == -1) {
-            setMaxAllowedCreditBody(1);
+            setDecisionCheckbox(false);
+            setMessage(11);
             return;
+        }
+        if (Objects.equals(getIncomeSource(), "безработный")) {
+            setDecisionCheckbox(false);
+            setMessage(12);
+            return;
+        }
+        if (getCreditRating() == -2) {
+            setDecisionCheckbox(false);
+            setMessage(13);
+            return;
+        }
+        if (getRequestedAmount() / getPaymentPeriod() > getLastYearIncome() / 3.0) {
+            setDecisionCheckbox(false);
+            setMessage(14);
+        }
+    }
+
+//    получение максимально возможной суммы к выдаче
+    public int getMaxAllowedAmount() {
+        if (getIncomeSource().equals("пассивный доход") || getCreditRating() == -1) {
+            return 1;
         }
         if (getIncomeSource().equals("наёмный работник") || getIncomeSource().equals("наемный работник")
                 || getCreditRating() == 0) {
-            setMaxAllowedCreditBody(5);
-            return;
+            return 5;
         }
-        if (getIncomeSource().equals("собственный бизнес") || getCreditRating() == 1 || getCreditRating() == 2) {
-            setMaxAllowedCreditBody(10);
+        return 10;
+    }
+
+//    проверка условия что запрошенная сумма не превышает максимальный лимит на выдачу
+    public void limitCalculation(int maxAllowedAmount) {
+        if (getRequestedAmount() > maxAllowedAmount) {
+            setDecisionCheckbox(false);
+            setMessage(14);
         }
     }
 
-    public String limitCalculation() {
-        if (getRequestedAmount() > getMaxAllowedCreditBody()) {
-            setCreditBurden(false);
-            return "Отказ: слишком высокая кредитная нагрузка";
-        }
-        return "Проверка на лимит пройдена";
-    }
-
-    public void creditRateCalculating() {
+//    расчёт годовой ставки
+    public double getRate() {
+        double rate = 10.0;
         if(getPurpose().equals("ипотека")) {
-            this.baseRate = this.baseRate - 2;
+            rate -= 2;
         }
         if(getPurpose().equals("развитие бизнеса")) {
-            this.baseRate = this.baseRate - 0.5;
+            rate -= 0.5;
         }
         if(getPurpose().equals("потребительский") || getPurpose().equals("автокредит")) {
-            this.baseRate = this.baseRate + 1.5;
+            rate += 1.5;
         }
         if (getCreditRating() == -1) {
-            this.baseRate = this.baseRate + 1.5;
+            rate += 1.5;
         }
         if (getCreditRating() == 1) {
-            this.baseRate = this.baseRate - 0.25;
+            rate -= 0.25;
         }
         if (getCreditRating() == 2) {
-            this.baseRate = this.baseRate - 0.75;
+            rate -= 0.75;
         }
-        this.baseRate = this.baseRate - Math.log10(getRequestedAmount());
+        rate -= Math.round(Math.log10(getRequestedAmount()) * 100.0) / 100.0;
         if (getIncomeSource().equals("пассивный доход")) {
-            this.baseRate = this.baseRate + 0.5;
+            rate += 0.5;
         }
         if (getIncomeSource().equals("наёмный работник") || getIncomeSource().equals("наемный работник")
                 || getIncomeSource().equals("собственный бизнес")) {
-            this.baseRate = this.baseRate - 0.25;
+            rate -= 0.25;
         }
+        return rate;
     }
 
-    public void yearPayment() {
-        this.yearPayment = (getRequestedAmount() * (1 + getPaymentPeriod() * (this.baseRate)))/getPaymentPeriod();
+//    расчёт годового платежа
+    public double getYearPayment(double rate) {
+        return Math.round((getRequestedAmount() * (1 + getPaymentPeriod() * (rate)))/getPaymentPeriod() * 100.0) / 100.0;
     }
 
-    public String creditBurdenCheckerWithYearPayment() {
+//    проверка условия, что годовой платёж не превышает половины дохода
+    public void rejectCheckWithYearPayment(double yearPayment) {
         if (getLastYearIncome() / 2.0 < yearPayment) {
-            setValidationChecker(false);
-            return "Отказ: слишком высокая кредитная нагрузка";
+            setDecisionCheckbox(false);
+            setMessage(14);
+            System.out.println("ГОДОВОЙ ПЛАТЁЖ " + yearPayment);
         }
-        return "Вторая проверка на кредитную нагрузку пройдена";
+    }
+
+    public String makeDecision() {
+        inputValidation();
+        if (!isDecisionCheckbox()) {
+            return map.get(message);
+        }
+        rejectCheck();
+        if (!isDecisionCheckbox()) {
+            return map.get(message);
+        }
+        limitCalculation(getMaxAllowedAmount());
+        if (!isDecisionCheckbox()) {
+            return map.get(message);
+        }
+        double yearPayment = getYearPayment(getRate());
+        rejectCheckWithYearPayment(yearPayment);
+        if (!isDecisionCheckbox()) {
+            return map.get(message);
+        }
+        return String.format("Кредит одобрен. Годовой платёж составляет {0}", yearPayment);
     }
 }
