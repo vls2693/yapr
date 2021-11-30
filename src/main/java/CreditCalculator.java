@@ -1,6 +1,5 @@
-import java.text.DecimalFormat;
-import java.util.HashMap;
-import java.util.Map;
+import constants.Constants;
+
 import java.util.Objects;
 
 public class CreditCalculator {
@@ -14,7 +13,6 @@ public class CreditCalculator {
     private String purpose;
     private boolean decisionCheckbox;
     private int message;
-    public Map<Integer, String> map;
 
     public CreditCalculator(int age, String gender, String incomeSource, int lastYearIncome, int creditRating,
                             double requestedAmount, int paymentPeriod, String purpose) {
@@ -30,32 +28,16 @@ public class CreditCalculator {
 //        переменная проверок по ошибкам и отказам, если принимает значение false, возвращаем ошибку или отказ
         this.decisionCheckbox = true;
         this.message = 0;
-        Map<Integer, String> map = new HashMap<>();
-        map.put(1, "Ошибка: возраст не может быть меньше 0 или больше 100. Введите корректные данные");
-        map.put(2, "Ошибка: пол может быть только M или F. Введите корректные данные");
-        map.put(3, "Ошибка: источник дохода может быть только: пассивный доход, наёмный работник, наемный работник, " +
-                "собственный бизнес, безработный . Введите корректные данные");
-        map.put(4, "Ошибка: доход за последний год не может быть меньше 0 или больше 100. Введите корректные данные");
-        map.put(5, "Ошибка: кредитный рейтинг не может быть меньше -2 или больше 2. Введите корректные данные");
-        map.put(6, "Ошибка: запрошенная сумма не может быть меньше 0.1 или больше 10. Введите корректные данные");
-        map.put(7, "Ошибка: срок погашения не может быть меньше 1 или больше 20. Введите корректные данные");
-        map.put(8, "Ошибка: цель может быть только: ипотека, развитие бизнеса, автокредит, потребительский. " +
-                "Введите корректные данные");
-        map.put(9, "Отказ: возраст выдачи кредита начинается с 14");
-        map.put(10, "Отказ: возраст заёмщика на момент выплаты кредита будет пенсионный");
-        map.put(11, "Отказ: выдача кредита недоступна гражданам пенсионного возраста");
-        map.put(12, "Отказ: выдача кредита недоступна безработным");
-        map.put(13, "Отказ: выдача кредита недоступна c низким кредитным рейтингом");
-        map.put(14, "Отказ: слишком высокая кредитная нагрузка");
-        this.map = map;
     }
+
+    Constants constants = new Constants();
 
     public int getAge() {
         return age;
     }
 
     public String getGender() {
-        return gender;
+        return this.gender;
     }
 
     public String getIncomeSource() {
@@ -105,16 +87,12 @@ public class CreditCalculator {
             setMessage(1);
             return;
         }
-        if (!Objects.equals(getGender(), "m") || !Objects.equals(getGender(), "f")) {
+        if (!constants.getGenders().containsKey(getGender())) {
             setDecisionCheckbox(false);
             setMessage(2);
             return;
         }
-        if (!Objects.equals(getIncomeSource(), "пассивный доход") ||
-                !Objects.equals(getIncomeSource(), "наёмный работник")
-                || !Objects.equals(getIncomeSource(), "наемный работник")
-                || !Objects.equals(getIncomeSource(), "собственный бизнес")
-                || !Objects.equals(getIncomeSource(), "безработный")) {
+        if (!constants.getSources().containsKey(getIncomeSource())) {
             setDecisionCheckbox(false);
             setMessage(3);
             return;
@@ -139,10 +117,7 @@ public class CreditCalculator {
             setMessage(7);
             return;
         }
-        if (!Objects.equals(getPurpose(), "ипотека") ||
-                !Objects.equals(getIncomeSource(), "развитие бизнеса")
-                || !Objects.equals(getIncomeSource(), "автокредит")
-                || !Objects.equals(getIncomeSource(), "потребительский")) {
+        if (!constants.getPurposes().containsKey(getPurpose())) {
             setDecisionCheckbox(false);
             setMessage(8);
         }
@@ -250,20 +225,20 @@ public class CreditCalculator {
     public String makeDecision() {
         inputValidation();
         if (!isDecisionCheckbox()) {
-            return map.get(message);
+            return constants.getAnswers().get(message);
         }
         rejectCheck();
         if (!isDecisionCheckbox()) {
-            return map.get(message);
+            return constants.getAnswers().get(message);
         }
         limitCalculation(getMaxAllowedAmount());
         if (!isDecisionCheckbox()) {
-            return map.get(message);
+            return constants.getAnswers().get(message);
         }
         double yearPayment = getYearPayment(getRate());
         rejectCheckWithYearPayment(yearPayment);
         if (!isDecisionCheckbox()) {
-            return map.get(message);
+            return constants.getAnswers().get(message);
         }
         return String.format("Кредит одобрен. Годовой платёж составляет {0}", yearPayment);
     }
