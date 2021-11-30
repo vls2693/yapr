@@ -5,11 +5,12 @@ import java.util.Map;
 
 public class Constants {
     Map<Integer, String> answers = new HashMap<>();
-    Map<String, String> genders = new HashMap<>();
-    Map<String, String> sources = new HashMap<>();
-    Map<String, String> purposes = new HashMap<>();
+    Map<Integer, String> genders = new HashMap<>();
+    Map<Integer, String> sources = new HashMap<>();
+    Map<Integer, String> purposes = new HashMap<>();
 
     public Constants() {
+        answers.put(0, "Кредит одобрен. Годовой платёж составляет ");
         answers.put(1, "Ошибка: возраст не может быть меньше 0 или больше 100. Введите корректные данные");
         answers.put(2, "Ошибка: пол может быть только M или F. Введите корректные данные");
         answers.put(3, "Ошибка: источник дохода может быть только: пассивный доход, наёмный работник, наемный работник, " +
@@ -26,32 +27,33 @@ public class Constants {
         answers.put(12, "Отказ: выдача кредита недоступна безработным");
         answers.put(13, "Отказ: выдача кредита недоступна c низким кредитным рейтингом");
         answers.put(14, "Отказ: слишком высокая кредитная нагрузка");
-        genders.put("m", "m");
-        genders.put("f", "f");
-        sources.put("пассивный доход", "пассивный доход");
-        sources.put("наёмный работник", "наёмный работник");
-        sources.put("наемный работник", "наемный работник");
-        sources.put("собственный бизнес", "собственный бизнес");
-        sources.put("безработный", "безработный");
-        purposes.put("ипотека", "ипотека");
-        purposes.put("развитие бизнеса", "развитие бизнеса");
-        purposes.put("автокредит", "автокредит");
-        purposes.put("потребительский", "потребительский");
+        answers.put(15, "Отказ: запрошенная сумма превышает максимально допустимую к выдаче");
+        genders.put(1, "m");
+        genders.put(2, "f");
+        sources.put(1, "пассивный доход");
+        sources.put(2, "наёмный работник");
+        sources.put(3, "наемный работник");
+        sources.put(4, "собственный бизнес");
+        sources.put(5, "безработный");
+        purposes.put(1, "ипотека");
+        purposes.put(2, "развитие бизнеса");
+        purposes.put(3, "автокредит");
+        purposes.put(4, "потребительский");
     }
 
     public Map<Integer, String> getAnswers() {
         return answers;
     }
 
-    public Map<String, String> getGenders() {
+    public Map<Integer, String> getGenders() {
         return genders;
     }
 
-    public Map<String, String> getSources() {
+    public Map<Integer, String> getSources() {
         return sources;
     }
 
-    public Map<String, String> getPurposes() {
+    public Map<Integer, String> getPurposes() {
         return purposes;
     }
 }

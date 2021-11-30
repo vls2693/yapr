@@ -87,12 +87,12 @@ public class CreditCalculator {
             setMessage(1);
             return;
         }
-        if (!constants.getGenders().containsKey(getGender())) {
+        if (!constants.getGenders().containsValue(getGender())) {
             setDecisionCheckbox(false);
             setMessage(2);
             return;
         }
-        if (!constants.getSources().containsKey(getIncomeSource())) {
+        if (!constants.getSources().containsValue(getIncomeSource())) {
             setDecisionCheckbox(false);
             setMessage(3);
             return;
@@ -117,7 +117,7 @@ public class CreditCalculator {
             setMessage(7);
             return;
         }
-        if (!constants.getPurposes().containsKey(getPurpose())) {
+        if (!constants.getPurposes().containsValue(getPurpose())) {
             setDecisionCheckbox(false);
             setMessage(8);
         }
@@ -140,7 +140,7 @@ public class CreditCalculator {
             setMessage(11);
             return;
         }
-        if (Objects.equals(getIncomeSource(), "безработный")) {
+        if (Objects.equals(getIncomeSource(), constants.getSources().get(5))) {
             setDecisionCheckbox(false);
             setMessage(12);
             return;
@@ -158,11 +158,11 @@ public class CreditCalculator {
 
 //    получение максимально возможной суммы к выдаче
     public int getMaxAllowedAmount() {
-        if (getIncomeSource().equals("пассивный доход") || getCreditRating() == -1) {
+        if (getIncomeSource().equals(constants.getSources().get(1)) || getCreditRating() == -1) {
             return 1;
         }
-        if (getIncomeSource().equals("наёмный работник") || getIncomeSource().equals("наемный работник")
-                || getCreditRating() == 0) {
+        if (getIncomeSource().equals(constants.getSources().get(2)) || getIncomeSource()
+                .equals(constants.getSources().get(3)) || getCreditRating() == 0) {
             return 5;
         }
         return 10;
@@ -172,20 +172,20 @@ public class CreditCalculator {
     public void limitCalculation(int maxAllowedAmount) {
         if (getRequestedAmount() > maxAllowedAmount) {
             setDecisionCheckbox(false);
-            setMessage(14);
+            setMessage(15);
         }
     }
 
 //    расчёт годовой ставки
     public double getRate() {
         double rate = 10.0;
-        if(getPurpose().equals("ипотека")) {
+        if(getPurpose().equals(constants.getPurposes().get(1))) {
             rate -= 2;
         }
-        if(getPurpose().equals("развитие бизнеса")) {
+        if(getPurpose().equals(constants.getPurposes().get(2))) {
             rate -= 0.5;
         }
-        if(getPurpose().equals("потребительский") || getPurpose().equals("автокредит")) {
+        if(getPurpose().equals(constants.getPurposes().get(4))) {
             rate += 1.5;
         }
         if (getCreditRating() == -1) {
@@ -198,14 +198,14 @@ public class CreditCalculator {
             rate -= 0.75;
         }
         rate -= Math.round(Math.log10(getRequestedAmount()) * 100.0) / 100.0;
-        if (getIncomeSource().equals("пассивный доход")) {
+        if (getIncomeSource().equals(constants.getSources().get(1))) {
             rate += 0.5;
         }
-        if (getIncomeSource().equals("наёмный работник") || getIncomeSource().equals("наемный работник")
-                || getIncomeSource().equals("собственный бизнес")) {
+        if (getIncomeSource().equals(constants.getSources().get(2)) || getIncomeSource()
+                .equals(constants.getSources().get(3)) || getIncomeSource().equals(constants.getSources().get(4))) {
             rate -= 0.25;
         }
-        return rate;
+        return rate/100;
     }
 
 //    расчёт годового платежа
@@ -218,7 +218,6 @@ public class CreditCalculator {
         if (getLastYearIncome() / 2.0 < yearPayment) {
             setDecisionCheckbox(false);
             setMessage(14);
-            System.out.println("ГОДОВОЙ ПЛАТЁЖ " + yearPayment);
         }
     }
 
@@ -240,6 +239,6 @@ public class CreditCalculator {
         if (!isDecisionCheckbox()) {
             return constants.getAnswers().get(message);
         }
-        return String.format("Кредит одобрен. Годовой платёж составляет {0}", yearPayment);
+        return constants.getAnswers().get(message) + yearPayment;
     }
 }
