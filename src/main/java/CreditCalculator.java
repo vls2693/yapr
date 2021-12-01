@@ -131,12 +131,12 @@ public class CreditCalculator {
             setMessage(9);
             return;
         }
-        if (getAge() + getPaymentPeriod() > 64) {
+        if (getAge() > 64) {
             setDecisionCheckbox(false);
             setMessage(10);
             return;
         }
-        if (getAge() > 64) {
+        if (getAge() + getPaymentPeriod() > 64) {
             setDecisionCheckbox(false);
             setMessage(11);
             return;
