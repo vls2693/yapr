@@ -81,6 +81,7 @@ public class CreditCalculator {
         this.decisionCheckbox = decisionCheckbox;
     }
 
+//    проверки на вводимые значения, выходящие за пределы допустимых
     public void inputValidation() {
         if (getAge() < 0 || getAge() > 100) {
             setDecisionCheckbox(false);
@@ -221,6 +222,7 @@ public class CreditCalculator {
         }
     }
 
+//    метод, вызывающий все проверки и возвращающий решение по заявке
     public String makeDecision() {
         inputValidation();
         if (!isDecisionCheckbox()) {
