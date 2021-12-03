@@ -32,57 +32,57 @@ public class CreditCalculator {
 
     Constants constants = new Constants();
 
-    public int getAge() {
+    private int getAge() {
         return age;
     }
 
-    public String getGender() {
+    private String getGender() {
         return this.gender;
     }
 
-    public String getIncomeSource() {
+    private String getIncomeSource() {
         return incomeSource;
     }
 
-    public int getLastYearIncome() {
+    private int getLastYearIncome() {
         return lastYearIncome;
     }
 
-    public int getCreditRating() {
+    private int getCreditRating() {
         return creditRating;
     }
 
-    public double getRequestedAmount() {
+    private double getRequestedAmount() {
         return requestedAmount;
     }
 
-    public int getPaymentPeriod() {
+    private int getPaymentPeriod() {
         return paymentPeriod;
     }
 
-    public String getPurpose() {
+    private String getPurpose() {
 
         return purpose;
     }
 
-    public int getMessage() {
+    private int getMessage() {
         return message;
     }
 
-    public void setMessage(int message) {
+    private void setMessage(int message) {
         this.message = message;
     }
 
-    public boolean isDecisionCheckbox() {
+    private boolean isDecisionCheckbox() {
         return decisionCheckbox;
     }
 
-    public void setDecisionCheckbox(boolean decisionCheckbox) {
+    private void setDecisionCheckbox(boolean decisionCheckbox) {
         this.decisionCheckbox = decisionCheckbox;
     }
 
 //    проверки на вводимые значения, выходящие за пределы допустимых
-    public void inputValidation() {
+    private void inputValidation() {
         if (getAge() < 0 || getAge() > 100) {
             setDecisionCheckbox(false);
             setMessage(1);
@@ -125,7 +125,7 @@ public class CreditCalculator {
     }
 
 //    метод проверки на гарантированные отказы по возрасту, рейтингу, доходу
-    public void rejectCheck() {
+    private void rejectCheck() {
         if (getAge() < 14) {
             setDecisionCheckbox(false);
             setMessage(9);
@@ -158,7 +158,7 @@ public class CreditCalculator {
     }
 
 //    получение максимально возможной суммы к выдаче
-    public int getMaxAllowedAmount() {
+    private int getMaxAllowedAmount() {
         if (getIncomeSource().equals(constants.getSources().get(1)) || getCreditRating() == -1) {
             return 1;
         }
@@ -170,7 +170,7 @@ public class CreditCalculator {
     }
 
 //    проверка условия что запрошенная сумма не превышает максимальный лимит на выдачу
-    public void limitCalculation(int maxAllowedAmount) {
+    private void limitCalculation(int maxAllowedAmount) {
         if (getRequestedAmount() > maxAllowedAmount) {
             setDecisionCheckbox(false);
             setMessage(15);
@@ -178,7 +178,7 @@ public class CreditCalculator {
     }
 
 //    расчёт годовой ставки
-    public double getRate() {
+    private double getRate() {
         double rate = 10.0;
         if(getPurpose().equals(constants.getPurposes().get(1))) {
             rate -= 2;
@@ -210,12 +210,12 @@ public class CreditCalculator {
     }
 
 //    расчёт годового платежа
-    public double getYearPayment(double rate) {
+    private double getYearPayment(double rate) {
         return Math.round((getRequestedAmount() * (1 + getPaymentPeriod() * (rate)))/getPaymentPeriod() * 100.0) / 100.0;
     }
 
 //    проверка условия, что годовой платёж не превышает половины дохода
-    public void rejectCheckWithYearPayment(double yearPayment) {
+    private void rejectCheckWithYearPayment(double yearPayment) {
         if (getLastYearIncome() / 2.0 < yearPayment) {
             setDecisionCheckbox(false);
             setMessage(14);
